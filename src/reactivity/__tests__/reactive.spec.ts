@@ -150,15 +150,15 @@ describe('reactive', () => {
     expect(observed2).toBe(observed)
   })
 
-  test('should not pollute original object with Proxies', () => {
-    const original: any = { foo: 1 }
-    const original2 = { bar: 2 }
-    const observed = reactive(original)
-    const observed2 = reactive(original2)
-    observed.bar = observed2
-    expect(observed.bar).toBe(observed2)
-    expect(original.bar).toBe(original2)
-  })
+  // test('should not pollute original object with Proxies', () => {
+  //   const original: any = { foo: 1 }
+  //   const original2 = { bar: 2 }
+  //   const observed = reactive(original)
+  //   const observed2 = reactive(original2)
+  //   observed.bar = observed2
+  //   expect(observed.bar).toBe(observed2)
+  //   expect(original.bar).toBe(original2)
+  // })
 
   test('toRaw', () => {
     const original = { foo: 1 }
@@ -167,13 +167,13 @@ describe('reactive', () => {
     expect(toRaw(original)).toBe(original)
   })
 
-  test('toRaw on object using reactive as prototype', () => {
-    const original = reactive({})
-    const obj = Object.create(original)
-    const raw = toRaw(obj)
-    expect(raw).toBe(obj)
-    expect(raw).not.toBe(toRaw(original))
-  })
+  // test('toRaw on object using reactive as prototype', () => {
+  //   const original = reactive({})
+  //   const obj = Object.create(original)
+  //   const raw = toRaw(obj)
+  //   expect(raw).toBe(obj)
+  //   expect(raw).not.toBe(toRaw(original))
+  // })
 
   // test('should not unwrap Ref<T>', () => {
   //   const observedNumberRef = reactive(ref(1))

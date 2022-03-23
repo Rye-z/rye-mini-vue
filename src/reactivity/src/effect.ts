@@ -1,23 +1,59 @@
 let activeEffect
+let shouldTrack = true
 
 const targetMap = new WeakMap()
 
 class ReactiveEffect {
-  constructor(public fn) {}
+  // 用于 stop()
+  active = true
+  deps = []
+
+  constructor(public fn, public scheduler) {
+  }
+
   run() {
     // fn 可能有返回值
-    activeEffect  = this
-    return this.fn()
+    activeEffect = this
+    // 每次执行 fn 都会重新收集依赖
+    // 调用 stop 之后就不再自动触发依赖了，但是可以通过手动触发
+    // 在 fn 执行
+    shouldTrack = true
+    const res = this.fn()
+    shouldTrack = false
+
+    return res
   }
-  stop() {}
+
+  stop() {
+    // active 防止多次调用 stop 导致重复清理
+    if (this.active) {
+      cleanupEffect(this)
+      this.active = false
+    }
+  }
 }
 
-export function effect(fn) {
+function cleanupEffect(effect) {
+  const { deps } = effect
+  deps.forEach(dep => {
+    dep.delete(effect)
+  })
+  // 类数组 length
+  deps.length = 0
+}
+
+export function effect(fn, options = {
+  lazy: false,
+  scheduler: undefined
+}) {
   let _effect: any;
-  _effect = new ReactiveEffect(fn);
+  const { scheduler } = options
+  _effect = new ReactiveEffect(fn, scheduler);
   // fn 函数是立刻执行的
   //  - `lazy` 参数延迟执行 => computed 实现
-  _effect.run()
+  if (!options.lazy) {
+    _effect.run()
+  }
 
   const runner = _effect.run.bind(_effect)
   runner.effect = _effect
@@ -25,7 +61,12 @@ export function effect(fn) {
   return runner
 }
 
+export function stop(runner) {
+  runner.effect.stop()
+}
+
 export function track(target, key) {
+  if (!activeEffect || !shouldTrack) return
   // track 的工作就是收集当前 target 对应 key 的依赖
   // 需要触发的对象 => target
   // 需要触发的对象的某个属性 => target.key
@@ -34,13 +75,24 @@ export function track(target, key) {
     targetMap.set(target, (depsMap = new Map()))
   }
 
-  let deps = depsMap.get(key)
-  if(!deps) {
-    depsMap.set(key, (deps = new Set()))
+  let dep = depsMap.get(key)
+  if (!dep) {
+    depsMap.set(key, (dep = new Set()))
   }
 
-  deps.add(activeEffect)
+  trackEffects(dep)
 
+  // 反向收集 => dep 是一个 Set
+  activeEffect.deps.push(dep)
+}
+
+export function trackEffects(dep) {
+  if (activeEffect && shouldTrack) {
+    // Set.prototype.has()
+    if (dep.has(activeEffect)) return
+
+    dep.add(activeEffect)
+  }
 }
 
 export function trigger(target, key) {
@@ -54,5 +106,14 @@ export function trigger(target, key) {
     return
   }
 
-  deps.forEach(effect => effect.run())
+
+  triggerEffects(deps)
+}
+
+export function triggerEffects(deps) {
+  deps.forEach(effect => {
+    effect.scheduler
+      ? effect.scheduler()
+      : effect.run()
+  })
 }
