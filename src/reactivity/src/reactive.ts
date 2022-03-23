@@ -10,6 +10,8 @@ export const enum ReactiveFlags {
 }
 
 // WeakMap 键的引用是 “弱引用”
+// 1. WeakMap 的 键不会计入垃圾回收引用计数
+// 2. WeakMap 的 键是不可枚举的
 const reactiveMap = new WeakMap()
 const shallowReactiveMap = new WeakMap()
 const readonlyMap = new WeakMap()
@@ -107,10 +109,11 @@ export function isProxy(value): boolean {
   return isReactive(value) || isReadonly(value)
 }
 
-/* toRaw() can return the original object from proxies created by
-   reactive(), readonly(), shallowReactive() or shallowReadonly().
-   https://vuejs.org/api/reactivity-advanced.html#toraw
-* */
+/**
+ * toRaw() can return the original object from proxies created by
+ *   reactive(), readonly(), shallowReactive() or shallowReadonly().
+ *   https://vuejs.org/api/reactivity-advanced.html#toraw
+ */
 export function toRaw(observer) {
   // 如果 observer 不是 Proxy 对象，直接返回 observer
   const res = observer[ReactiveFlags.RAW]
