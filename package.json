@@ -4,7 +4,7 @@
   "description": "mini vue3",
   "main": "index.js",
   "scripts": {
-    "test": "jest"
+    "test": "jest --watch"
   },
   "author": "Rye.zsy",
   "license": "ISC",
