@@ -5,8 +5,8 @@ export const enum ReactiveFlags {
   SKIP = '__v_skip',
   IS_REACTIVE = '__v_isReactive',
   IS_READONLY = '__v_isReadonly',
-  IS_SHALLOW = '__v_isShallow',
-  RAW = '__v_raw'
+  RAW = '__v_raw',
+  IS_SHALLOW = '__v_isShallow'
 }
 
 // WeakMap 键的引用是 “弱引用”
@@ -81,16 +81,16 @@ function createReactiveObject(
 }
 
 export function isReadonly(value) {
-  // 1.访问 target 的任意属性，会触发 proxyHandler 的 get
-  //   通过判断 get 的返回值可以判断出是否为 readonly
-  // 2. `!!` 转为 boolean 值
-  //
-  // 需要判断的数据类型
-  //   1. 原始类型判断 const original = { age: 11 }
-  //   2. reactive 类型判断
-  //   3. object 嵌套属性也应该是 readonly
   return !!value[ReactiveFlags.IS_READONLY]
 }
+// 1.访问 target 的任意属性，会触发 proxyHandler 的 get
+//   通过判断 get 的返回值可以判断出是否为 readonly
+// 2. `!!` 转为 boolean 值
+//
+// 需要判断的数据类型
+// 1. 原始类型判断 const original = { age: 11 }
+// 2. reactive 类型判断
+// 3. object 嵌套属性也应该是 readonly
 
 export function isReactive(value): boolean {
   if (isReadonly(value)) {
@@ -111,8 +111,8 @@ export function isProxy(value): boolean {
 
 /**
  * toRaw() can return the original object from proxies created by
- *   reactive(), readonly(), shallowReactive() or shallowReadonly().
- *   https://vuejs.org/api/reactivity-advanced.html#toraw
+ * reactive(), readonly(), shallowReactive() or shallowReadonly().
+ * https://vuejs.org/api/reactivity-advanced.html#toraw
  */
 export function toRaw(observer) {
   // 如果 observer 不是 Proxy 对象，直接返回 observer

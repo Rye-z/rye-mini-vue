@@ -46,7 +46,11 @@ export function ref(value?) {
 }
 
 export function isRef(r) {
-  return Boolean(r && r.__v_isRef)
+  return Boolean(r && r.__v_isRef === true)
+}
+
+export function unref(r) {
+  return isRef(r) ? r.value : r
 }
 
 /* Can be used to create a ref for a property on a source reactive object.
@@ -54,4 +58,21 @@ export function isRef(r) {
     mutating the source property will update the ref, and vice-versa.
 * */
 export function toRef() {
+}
+
+export function proxyRefs(objectWithRefs) {
+  // 用于在 template 中直接使用 obj.prop 而不是 obj.prop.value
+  return new Proxy(objectWithRefs, {
+    get(target, key) {
+      return unref(Reflect.get(target, key))
+    },
+    set(target, key, value) {
+      // 边界处理
+      if (isRef(target[key]) && !isRef(value)) {
+        return target[key].value = value
+      } else {
+        return Reflect.set(target, key, value)
+      }
+    }
+  })
 }

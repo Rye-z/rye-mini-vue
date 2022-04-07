@@ -1,6 +1,6 @@
-import { extend, isObject } from "../../shared";
-import { reactive, ReactiveFlags, readonly } from "./reactive";
-import { track, trigger } from "./effect";
+import { extend, isObject } from "../../shared"
+import { reactive, ReactiveFlags, readonly } from "./reactive"
+import { track, trigger } from "./effect"
 
 const get = createGetter()
 const shallowGet = createGetter(false, true)
@@ -76,15 +76,15 @@ export const readonlyHandlers: any = {
     return true
   }
 }
+
 export const shallowReactiveHandlers = extend(
   {},
-    mutableHandlers,
-    {
-      get: shallowGet,
-      set: shallowSet
-    }
+  mutableHandlers,
+  {
+    get: shallowGet,
+    set: shallowSet
+  }
 )
-
 
 export const shallowReadonlyHandlers = extend(
   {},
