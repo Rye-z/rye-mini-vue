@@ -675,6 +675,12 @@ describe("effect", () => {
   })
 
   it('scheduler', () => {
+    // Vue.js设计与实现 P60
+    // scheduler 的作用就是响应系统非常重要的【可调度性】
+    // 所谓可调度性就是当 trigger  动作触发副作用函数重新执行时，有能力决定副作用函数执行的时机、次数和触发方式
+    // 即当响应式对象发生改变时，可以不立刻触发 effectFn，而触发传入的 scheduler，并且可以选择手动触发 run
+    // computed 的实现就是基于 响应式系统的【可调度性】，当响应式对象的值发生改变时，才会重新进行计算，也就是我们传入的 scheduler
+    // 而当我们只是获取响应式对象的值，此时则不触发 effectFn，因为值并没有发生改变
     let dummy
     let run: any
     const scheduler = jest.fn(() => {

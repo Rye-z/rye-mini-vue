@@ -31,8 +31,8 @@ class RefImpl {
       this._rawValue = val
     }
   }
-}
 
+}
 function convert(val) {
   return isObject(val) ? reactive(val) : val
 }

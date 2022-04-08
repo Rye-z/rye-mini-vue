@@ -3,7 +3,7 @@ let shouldTrack = true
 
 const targetMap = new WeakMap()
 
-class ReactiveEffect {
+export class ReactiveEffect {
   // 用于 stop()
   active = true
   deps = []
@@ -50,7 +50,7 @@ export function effect(fn, options = {
   const { scheduler } = options
   _effect = new ReactiveEffect(fn, scheduler);
   // fn 函数是立刻执行的
-  //  - `lazy` 参数延迟执行 => computed 实现
+  // todo `lazy` 参数延迟执行 => computed 实现 ? 暂时没有理解
   if (!options.lazy) {
     _effect.run()
   }
